@@ -1,6 +1,7 @@
 package com.example.demo.controller;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -17,5 +18,11 @@ public class HelloController {
     @GetMapping("/private")
     public ResponseEntity<String> getPrivate() {
         return ResponseEntity.ok("Hello getPrivate");
+    }
+
+    @GetMapping("/private-admin")
+    @Secured("ROLE_ADMIN")
+    public ResponseEntity<String> getPrivateAdmin() {
+        return ResponseEntity.ok("Hello getPrivateAdmin");
     }
 }

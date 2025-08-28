@@ -63,15 +63,14 @@ public class JwtService extends OncePerRequestFilter {
 
                             Claims claims = Jwts.parser().setSigningKey(SECRET).parseClaimsJws(token).getBody();
 
-                            Optional<UserApp> optUserApp = userAppRepository.findByUsername(claims.getSubject());
-                            if(optUserApp.isEmpty()){
+                            UserApp userApp = userAppRepository.findByUsername(claims.getSubject());
+                            if(userApp == null){
                                 throw new UsernameNotFoundException(claims.getSubject());
                             }
-                            UserApp userApp = optUserApp.get();
 
                             if (validateToken(token, userApp)) {
                                 UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(
-                                        userApp, null, null);
+                                        userApp, null, Collections.singletonList(new SimpleGrantedAuthority(userApp.getRole())));
                                 SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
                             }
                         } catch (Exception e) {
@@ -92,6 +91,7 @@ public class JwtService extends OncePerRequestFilter {
         try {
             Jwts.parser().setSigningKey(SECRET).parseClaimsJws(token).getBody();
         }catch (Exception e){
+            System.out.println("Erreur token : " + e.getMessage());
             return false;
         }
         return true;
@@ -101,6 +101,7 @@ public class JwtService extends OncePerRequestFilter {
     public static String generateToken(UserApp userApp) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("username", userApp.getUsername());
+        claims.put("role", userApp.getRole());
         return Jwts.builder().setClaims(claims).setSubject(userApp.getUsername()).setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + JWT_TOKEN_VALIDITY))
                 .signWith(SignatureAlgorithm.HS256, SECRET).compact();
