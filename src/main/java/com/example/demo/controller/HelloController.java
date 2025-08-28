@@ -2,6 +2,7 @@ package com.example.demo.controller;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -23,6 +24,7 @@ public class HelloController {
     @GetMapping("/private-admin")
     @Secured("ROLE_ADMIN")
     public ResponseEntity<String> getPrivateAdmin() {
+        System.out.println("Current auth: " + SecurityContextHolder.getContext().getAuthentication());
         return ResponseEntity.ok("Hello getPrivateAdmin");
     }
 }

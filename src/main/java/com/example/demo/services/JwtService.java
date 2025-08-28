@@ -18,9 +18,7 @@ import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -54,7 +52,7 @@ public class JwtService extends OncePerRequestFilter {
             throws ServletException, IOException {
 
         if (request.getCookies() != null) {
-            Stream.of(request.getCookies())
+            Arrays.stream((request.getCookies()))
                     .filter(cookie ->
                             cookie.getName().equals(COOKIE_NAME))
                                 .map(Cookie::getValue)
@@ -69,8 +67,9 @@ public class JwtService extends OncePerRequestFilter {
                             }
 
                             if (validateToken(token, userApp)) {
+                                System.out.println("Authorities for " + userApp.getUsername() + " : ROLE_" + userApp.getRole());
                                 UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(
-                                        userApp, null, Collections.singletonList(new SimpleGrantedAuthority(userApp.getRole())));
+                                        userApp, null, Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + userApp.getRole())));
                                 SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
                             }
                         } catch (Exception e) {
